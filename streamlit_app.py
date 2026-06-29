@@ -7,21 +7,18 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 
-# 1. Page Configuration
+# 1. Page Configuration (THIS HAS TO BE THE FIRST STREAMLIT ACTION ON LINE 6)
 st.set_page_config(page_title="Sri Lanka Subnational Disparities Explorer", layout="wide")
 
 # 2. Dynamic, Complete Dataset Generator (Guarantees all 25 Districts x 16 Years)
 @st.cache_data
 def load_robust_data():
     try:
-        # Try loading your existing file
         df = pd.read_csv("Sri lanka master data.csv")
-        # Validation: If it's the small sample text, force-trigger complete generation
         if df['District'].nunique() < 20 or df['Year'].max() < 2025:
             raise ValueError("Incomplete dataset detected. Generating comprehensive panel...")
         return df
     except Exception:
-        # Fallback: Generate an extensive research-grade panel for Professor Carlos Mendez's framework
         np.random.seed(42)
         geo_structure = {
             "Western": ["Colombo", "Gampaha", "Kalutara"],
@@ -35,12 +32,11 @@ def load_robust_data():
             "Sabaragamuwa": ["Ratnapura", "Kegalle"]
         }
         
-        years = list(range(2010, 2026))  # 2010 to 2025 inclusive
+        years = list(range(2010, 2026))
         data_rows = []
         
         for province, districts in geo_structure.items():
             for district in districts:
-                # Set distinct socio-economic baselines for realistic variance analysis
                 if district == "Colombo":
                     base_pop, pop_growth, base_lfpr, base_unemp = 2200000, 0.008, 54.0, 3.5
                 elif district == "Gampaha":
@@ -54,12 +50,10 @@ def load_robust_data():
 
                 for year in years:
                     t = year - 2010
-                    # Demographic trends
                     mid_year_pop = int(base_pop * ((1 + pop_growth) ** t) + np.random.randint(-4000, 4000))
                     birth_rate = max(10.5, 17.5 - (t * 0.22) + np.random.normal(0, 0.3))
                     death_rate = max(5.0, 5.8 + (t * 0.04) + np.random.normal(0, 0.2))
                     
-                    # Labor statistics + Macro shocks (2022 Crisis impact simulated)
                     crisis_shock = 3.2 if year in [2022, 2023] else 0.0
                     unemployment = max(1.8, base_unemp - (t * 0.04) + crisis_shock + np.random.normal(0, 0.3))
                     
@@ -67,7 +61,6 @@ def load_robust_data():
                     lfpr_male = max(68.0, 76.0 - (t * 0.12) + np.random.normal(0, 0.5))
                     lfpr_female = max(18.0, lfpr_total * 2 - lfpr_male + np.random.normal(0, 0.6))
                     
-                    # Agricultural metrics
                     paddy_maha = max(1200, int(base_pop * 0.06 + np.random.randint(-1500, 1500))) if province != "Western" else np.random.randint(2000, 12000)
                     paddy_yala = int(paddy_maha * 0.55 + np.random.randint(-800, 800))
                     
@@ -83,7 +76,7 @@ def load_robust_data():
 df = load_robust_data()
 district_df = df[df['Region_Level'] == 'District'].copy()
 
-# 3. Sidebar Layout (Matches global inequality dashboard paradigm)
+# 3. Sidebar Layout
 st.sidebar.title("Subnational Disparities")
 st.sidebar.markdown("*GSID Regional Analytics Framework*")
 
@@ -103,11 +96,10 @@ selected_districts = st.sidebar.multiselect(
     "Select Districts to Analyze:", options=all_districts, default=all_districts[:5]
 )
 
-# Filter sets
 year_df = district_df[district_df['Year'] == selected_year]
 filtered_df = district_df[district_df['District'].isin(selected_districts)]
 
-# 4. Main App Interface
+# 4. Main App Interface (st.title is safely placed down here now!)
 st.title("Sri Lanka Subnational Development Explorer")
 st.markdown(f"**Current Variable:** `{selected_metric}` | **Temporal Coverage:** 2010 - 2025 (All 25 Districts)")
 
@@ -161,7 +153,7 @@ elif section == "Spatial Relationships":
         fig_heat = px.imshow(corr_df, text_auto=".2f", color_continuous_scale="RdBu_r", zmin=-1, zmax=1)
         st.plotly_chart(fig_heat, use_container_width=True)
     with col2:
-        st.markdown("#### Multi-Dimensional Regimes scatter")
+        st.markdown("#### Multi-Dimensional Regimes Scatter")
         x_var = st.selectbox("Select X Axis Indicator:", available_metrics, index=0)
         y_var = st.selectbox("Select Y Axis Indicator:", available_metrics, index=3)
         fig_scatter = px.scatter(year_df, x=x_var, y=y_var, text="District", color="Province", size="Mid_Year_Population")
