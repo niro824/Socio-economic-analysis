@@ -166,3 +166,38 @@ elif section == "Raw Panel Data":
         file_name="srilanka_subnational_filtered_panel.csv",
         mime="text/csv"
     )
+# --- SECTION 3: SPATIAL RELATIONSHIPS ---
+elif section == "Spatial Relationships":
+    st.subheader("Variable Correlation & Development Regimes")
+    st.markdown("Explores how economic metrics correlate across districts to reveal structural patterns.")
+    
+    # DYNAMIC FIX: Only use numeric columns that actually exist in your dataset
+    existing_metrics = [metric for metric in available_metrics if metric in year_df.columns]
+    
+    if len(existing_metrics) > 1:
+        # Compute correlation matrix dynamically safely
+        corr_df = year_df[existing_metrics].corr()
+        
+        col1, col2 = st.columns([1, 1.2])
+        with col1:
+            st.markdown("#### Core Indicator Correlation Matrix")
+            fig_heat = px.imshow(
+                corr_df, text_auto=".2f", 
+                color_continuous_scale="RdBu_r", zmin=-1, zmax=1
+            )
+            st.plotly_chart(fig_heat, use_container_width=True)
+            
+        with col2:
+            st.markdown("#### Multi-Dimensional Trade-off Matrix")
+            x_var = st.selectbox("Select X Axis Indicator:", existing_metrics, index=0)
+            y_var = st.selectbox("Select Y Axis Indicator:", existing_metrics, index=min(3, len(existing_metrics)-1))
+            
+            fig_scatter = px.scatter(
+                year_df, x=x_var, y=y_var, text="District", color="Province",
+                size="Mid_Year_Population" if "Mid_Year_Population" in year_df.columns else None,
+                title=f"{x_var} vs {y_var} Matrix"
+            )
+            fig_scatter.update_traces(textposition='top center')
+            st.plotly_chart(fig_scatter, use_container_width=True)
+    else:
+        st.error("Not enough matching numeric columns found in the CSV to calculate correlations. Please check your column headers.")
