@@ -2,7 +2,7 @@ import streamlit as st
 
 st.title('Sri Lanka socio economic analysis')
 
-st.write('let's analyze')
+st.write("Let's analyze")
 # ==========================================
 # PART 1: IMPORTS (Always at the very top)
 # ==========================================
