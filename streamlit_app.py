@@ -1,11 +1,11 @@
-st.title('Sri Lanka socio economic analysis')
-
-st.write("Let's analyze")
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import numpy as np
+
+st.title('Sri Lanka socio economic analysis')
+
+st.write("Let's analyze")
 
 # 1. Page Configuration (THIS HAS TO BE THE FIRST STREAMLIT ACTION ON LINE 6)
 st.set_page_config(page_title="Sri Lanka Subnational Disparities Explorer", layout="wide")
