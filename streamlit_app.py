@@ -3,9 +3,9 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 
-st.title('Sri Lanka socio economic analysis')
+st.title('Sri Lanka Subnational Disparities Explorer')
 
-st.write("Let's analyze")
+st.write("Explore 15+ years of district-level socioeconomic trends, distribution shifts, and indicator correlations in Sri Lanka.")
 
 # 1. Page Configuration (THIS HAS TO BE THE FIRST STREAMLIT ACTION ON LINE 6)
 st.set_page_config(page_title="Sri Lanka Subnational Disparities Explorer", layout="wide")
