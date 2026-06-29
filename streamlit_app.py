@@ -11,7 +11,8 @@ import pandas as pd
 import plotly.express as px
 
 # ==========================================
-# PART 2: PAGE CONFIG & DATA LOADING
+# PART 2: PAGE CONFIG & DATA LOADING 
+# (set_page_config MUST come before any other st. command)
 # ==========================================
 st.set_page_config(page_title="Socio-economic Dashboard", layout="wide")
 
@@ -29,11 +30,12 @@ df = load_data()
 st.sidebar.header("Dashboard Filters")
 
 # Example: Dropdown selector for districts
-all_districts = df['District'].unique() # Change 'District' to your CSV's column name
+# NOTE: Make sure 'District' matches the exact column name in your CSV
+all_districts = df['District'].unique() 
 selected_districts = st.sidebar.multiselect(
     "Select Districts:", 
     options=all_districts, 
-    default=all_districts[:3]
+    default=all_districts[:3] if len(all_districts) >= 3 else all_districts
 )
 
 # Filter the dataset dynamically based on user selection
@@ -42,7 +44,8 @@ filtered_df = df[df['District'].isin(selected_districts)]
 # ==========================================
 # PART 4: MAIN DISPLAY (Charts, Metrics & Tables)
 # ==========================================
-st.title("📊 Sri Lanka Socio-economic Dashboard")
+st.title('Sri Lanka Socio-Economic Analysis')
+st.write("Let's analyze the historical trends and patterns.")
 
 # Create tabs to neatly organize your layout
 tab1, tab2 = st.tabs(["📈 Visualizations", "📋 Data View"])
@@ -50,7 +53,7 @@ tab1, tab2 = st.tabs(["📈 Visualizations", "📋 Data View"])
 with tab1:
     st.subheader("Interactive Trend Chart")
     # Generate an interactive line chart using Plotly
-    # (Make sure 'Year' and 'Value' match columns in your actual CSV file)
+    # NOTE: Make sure 'Year' and 'Value' match columns in your actual CSV file
     fig = px.line(filtered_df, x="Year", y="Value", color="District", markers=True)
     st.plotly_chart(fig, use_container_width=True)
 
