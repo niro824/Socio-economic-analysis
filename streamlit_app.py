@@ -78,7 +78,7 @@ district_df = df[df['Region_Level'] == 'District'].copy()
 
 # 3. Sidebar Layout
 st.sidebar.title("Subnational Disparities")
-st.sidebar.markdown("*GSID Regional Analytics Framework*")
+st.sidebar.markdown("*Regional Analytics Framework*")
 
 section = st.sidebar.radio(
     "Section Navigation",
