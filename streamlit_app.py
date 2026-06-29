@@ -3,59 +3,72 @@ import streamlit as st
 st.title('Sri Lanka socio economic analysis')
 
 st.write("Let's analyze")
-# ==========================================
-# PART 1: IMPORTS (Always at the very top)
-# ==========================================
-import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# ==========================================
-# PART 2: PAGE CONFIG & DATA LOADING 
-# (set_page_config MUST come before any other st. command)
-# ==========================================
-st.set_page_config(page_title="Socio-economic Dashboard", layout="wide")
+# 1. Page Configuration
+st.set_page_config(page_title="Sri Lanka Socio-Economic Analysis", layout="wide")
 
+# 2. Data Loading
 @st.cache_data
 def load_data():
-    # This loads the CSV file shown in your GitHub repository screenshot
     df = pd.read_csv("Sri lanka master data.csv")
     return df
 
 df = load_data()
 
-# ==========================================
-# PART 3: SIDEBAR FILTERS (Interactive controls)
-# ==========================================
+# 3. Sidebar Filters
 st.sidebar.header("Dashboard Filters")
 
-# Example: Dropdown selector for districts
-# NOTE: Make sure 'District' matches the exact column name in your CSV
-all_districts = df['District'].unique() 
+# Filter out rows that represent aggregated province totals, keeping only individual districts
+district_df = df[df['Region_Level'] == 'District']
+
+# Multi-select dropdown for Districts
+all_districts = sorted(district_df['District'].unique())
 selected_districts = st.sidebar.multiselect(
     "Select Districts:", 
     options=all_districts, 
-    default=all_districts[:3] if len(all_districts) >= 3 else all_districts
+    default=["Colombo", "Gampaha", "Kalutara"]  # Matches your screen options
 )
 
-# Filter the dataset dynamically based on user selection
-filtered_df = df[df['District'].isin(selected_districts)]
+# Filter the dataset dynamically based on selected districts
+filtered_df = district_df[district_df['District'].isin(selected_districts)]
 
-# ==========================================
-# PART 4: MAIN DISPLAY (Charts, Metrics & Tables)
-# ==========================================
-st.title('Sri Lanka Socio-Economic Analysis')
-st.write("Let's analyze the historical trends and patterns.")
+# 4. Main App Layout
+st.title('📊 Sri Lanka Socio-Economic Analysis')
+st.write("Analyze and compare historical trends across different districts.")
 
-# Create tabs to neatly organize your layout
+# Create tabs to organize content
 tab1, tab2 = st.tabs(["📈 Visualizations", "📋 Data View"])
 
 with tab1:
     st.subheader("Interactive Trend Chart")
-    # Generate an interactive line chart using Plotly
-    # NOTE: Make sure 'Year' and 'Value' match columns in your actual CSV file
-    fig = px.line(filtered_df, x="Year", y="Value", color="District", markers=True)
-    st.plotly_chart(fig, use_container_width=True)
+    
+    # Dynamic Indicator Selection: Let users choose what to plot on the Y-axis
+    available_indicators = [
+        "LFPR_Total", "LFPR_Male", "LFPR_Female", 
+        "Unemployment_Rate", "Mid_Year_Population", 
+        "Birth_Rate", "Death_Rate"
+    ]
+    
+    selected_indicator = st.selectbox(
+        "Choose an economic indicator to plot:", 
+        options=available_indicators
+    )
+    
+    # Generate the line chart dynamically using the selected metric
+    if not filtered_df.empty:
+        fig = px.line(
+            filtered_df, 
+            x="Year", 
+            y=selected_indicator, 
+            color="District", 
+            markers=True,
+            title=f"Trend of {selected_indicator.replace('_', ' ')} Over Time"
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.warning("Please select at least one district from the sidebar to view the chart.")
 
 with tab2:
     st.subheader("Filtered Dataset Table")
